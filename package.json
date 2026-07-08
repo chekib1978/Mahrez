@@ -8,7 +8,10 @@
     "preview": "vite preview",
     "scrape:parashop": "node scripts/scrape-parashop-public.mjs",
     "match:parashop": "node scripts/match-backoffice-parashop.mjs",
-    "prepare:plesk-test": "node scripts/prepare-plesk-test.mjs"
+    "prepare:plesk-test": "node scripts/prepare-plesk-test.mjs",
+    "build:static-data": "node scripts/build-static-public-data.mjs",
+    "install:static-cache": "node scripts/install-static-cache-snippet.mjs",
+    "optimize:egress": "npm run build:static-data && npm run install:static-cache"
   },
   "devDependencies": {
     "vite": "^5.2.0"

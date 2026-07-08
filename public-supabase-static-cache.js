@@ -1,12 +1,8 @@
 /**
- * PUBLIC SUPABASE STATIC CACHE
+ * PUBLIC SUPABASE STATIC CACHE v2
  *
- * Goal: stop public visitors from hitting Supabase for heavy read-only data.
- * Put this script before the public ecommerce app scripts, then generate
- * /static-data/products.json and /static-data/web_categories.json during deploy.
- *
- * Admin/backoffice should keep using Supabase directly. This layer is for the
- * public storefront only.
+ * Stops public visitors from hitting Supabase for heavy read-only storefront data.
+ * Serve /static-data/products.json and /static-data/web_categories.json from the web server/CDN.
  */
 (function () {
   'use strict';
@@ -18,12 +14,7 @@
   var REST_MARKER = '/rest/v1/';
   var STATIC_DIR = '/static-data/';
   var MANIFEST_URL = STATIC_DIR + 'manifest.json';
-
-  var TABLES = {
-    products: true,
-    web_categories: true
-  };
-
+  var TABLES = { products: true, web_categories: true };
   var memory = new Map();
   var manifestPromise = null;
   var stats = { hits: 0, misses: 0, bypassed: 0, fallback: 0 };
@@ -34,6 +25,12 @@
 
   function getMethod(input, init) {
     return ((init && init.method) || (input && input.method) || 'GET').toUpperCase();
+  }
+
+  function readHeader(headers, name) {
+    if (!headers) return '';
+    if (typeof headers.get === 'function') return headers.get(name) || '';
+    return headers[name] || headers[name.toLowerCase()] || '';
   }
 
   function extractTable(url) {
@@ -61,6 +58,7 @@
 
   function loadTable(table) {
     if (memory.has(table)) return Promise.resolve(memory.get(table));
+    stats.misses++;
     return loadManifest().then(function (manifest) {
       return nativeFetch(staticUrl(table, manifest), { cache: 'force-cache' })
         .then(function (r) {
@@ -89,7 +87,7 @@
   }
 
   function compare(rowValue, operator, rawValue) {
-    var value = normalizeValue(rawValue);
+    var value = normalizeValue(String(rawValue).replace(/^"|"$/g, ''));
     if (operator === 'eq') return rowValue === value || String(rowValue) === String(value);
     if (operator === 'neq') return !(rowValue === value || String(rowValue) === String(value));
     if (operator === 'gt') return Number(rowValue) > Number(value);
@@ -98,19 +96,31 @@
     if (operator === 'lte') return Number(rowValue) <= Number(value);
     if (operator === 'is') return value === null ? rowValue == null : rowValue === value;
     if (operator === 'in') {
-      var list = rawValue.replace(/^\(|\)$/g, '').split(',').map(function (x) { return String(normalizeValue(x.trim())); });
+      var list = String(rawValue).replace(/^\(|\)$/g, '').split(',').map(function (x) { return String(normalizeValue(x.trim())); });
       return list.indexOf(String(rowValue)) >= 0;
     }
     if (operator === 'like' || operator === 'ilike') {
-      var pattern = String(rawValue).replace(/%/g, '').toLowerCase();
+      var pattern = String(rawValue).replace(/%|\*/g, '').toLowerCase();
       return String(rowValue || '').toLowerCase().indexOf(pattern) >= 0;
     }
     return true;
   }
 
-  function applySupabaseQuery(rows, params) {
+  function applyFilterExpression(row, expression) {
+    // Supports common Supabase OR format: designation.ilike.*term*,product_brand.ilike.*term*
+    return expression.split(',').some(function (part) {
+      var pieces = part.split('.');
+      if (pieces.length < 3) return true;
+      var field = pieces.shift();
+      var operator = pieces.shift();
+      var rawValue = pieces.join('.');
+      return compare(row ? row[field] : undefined, operator, rawValue);
+    });
+  }
+
+  function applySupabaseQuery(rows, params, rangeHeader) {
     var result = rows.slice();
-    var reserved = { select: true, order: true, limit: true, offset: true };
+    var reserved = { select: true, order: true, limit: true, offset: true, or: true };
 
     params.forEach(function (value, key) {
       if (reserved[key]) return;
@@ -123,31 +133,47 @@
       });
     });
 
+    var orValue = params.get('or');
+    if (orValue) {
+      orValue = orValue.replace(/^\(|\)$/g, '');
+      result = result.filter(function (row) { return applyFilterExpression(row, orValue); });
+    }
+
     var order = params.get('order');
     if (order) {
-      var orderParts = order.split('.');
-      var field = orderParts[0];
-      var direction = (orderParts[1] || 'asc').toLowerCase();
-      result.sort(function (a, b) {
-        var av = a ? a[field] : undefined;
-        var bv = b ? b[field] : undefined;
-        if (av == null && bv == null) return 0;
-        if (av == null) return 1;
-        if (bv == null) return -1;
-        if (av < bv) return direction === 'desc' ? 1 : -1;
-        if (av > bv) return direction === 'desc' ? -1 : 1;
-        return 0;
+      order.split(',').reverse().forEach(function (orderPart) {
+        var orderPieces = orderPart.split('.');
+        var field = orderPieces[0];
+        var direction = (orderPieces[1] || 'asc').toLowerCase();
+        result.sort(function (a, b) {
+          var av = a ? a[field] : undefined;
+          var bv = b ? b[field] : undefined;
+          if (av == null && bv == null) return 0;
+          if (av == null) return 1;
+          if (bv == null) return -1;
+          if (av < bv) return direction === 'desc' ? 1 : -1;
+          if (av > bv) return direction === 'desc' ? -1 : 1;
+          return 0;
+        });
       });
     }
 
+    var totalBeforeSlice = result.length;
     var offset = Number(params.get('offset') || 0);
     var limit = params.get('limit');
+
+    if (rangeHeader && /^\d+-\d+$/.test(rangeHeader)) {
+      var parts = rangeHeader.split('-').map(Number);
+      offset = parts[0];
+      limit = String(parts[1] - parts[0] + 1);
+    }
+
     if (offset || limit) {
       var end = limit ? offset + Number(limit) : undefined;
       result = result.slice(offset, end);
     }
 
-    return result;
+    return { rows: result, total: totalBeforeSlice, from: offset, to: offset + result.length - 1 };
   }
 
   function staticFetch(input, init) {
@@ -165,14 +191,18 @@
       return nativeFetch(input, init);
     }
 
+    var headers = (init && init.headers) || (input && input.headers) || {};
+    var rangeHeader = readHeader(headers, 'Range');
+
     return loadTable(table)
       .then(function (rows) {
-        var filtered = applySupabaseQuery(rows, parseParams(url));
+        var result = applySupabaseQuery(rows, parseParams(url), rangeHeader);
         stats.hits++;
-        return new Response(JSON.stringify(filtered), {
+        return new Response(JSON.stringify(result.rows), {
           status: 200,
           headers: {
             'content-type': 'application/json; charset=utf-8',
+            'content-range': result.from + '-' + result.to + '/' + result.total,
             'x-static-supabase-cache': 'HIT',
             'x-static-supabase-table': table
           }

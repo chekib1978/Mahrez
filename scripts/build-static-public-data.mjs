@@ -28,12 +28,20 @@ if (!SUPABASE_URL || !KEY) {
 const tables = [
   {
     name: 'products',
-    // Keep this intentionally explicit. SELECT * is the egress killer.
-    query: 'select=id,code,name,brand,category_id,price,sale_price,stock_quantity,image_url,is_active,updated_at&is_active=eq.true&order=name.asc'
+    // Explicit columns only. SELECT * is the egress killer.
+    query: [
+      'select=id,code_article,code_barre,designation,stock_actuel,prix_vente_ttc,prix_vente_web_ttc,prix_vente_passager_ttc,remise_web_pct,image_url,description_web,product_brand,web_category_slug,is_web_hidden,old_price_ttc,promo_badge,product_gallery_urls,product_specs,forme,product_url,updated_at',
+      'is_web_hidden=eq.false',
+      'order=designation.asc'
+    ].join('&')
   },
   {
     name: 'web_categories',
-    query: 'select=id,name,slug,parent_id,sort_order,is_active,updated_at&is_active=eq.true&order=sort_order.asc'
+    query: [
+      'select=id,parent_id,name,slug,sort_order,is_active,updated_at',
+      'is_active=eq.true',
+      'order=sort_order.asc'
+    ].join('&')
   }
 ];
 
@@ -67,8 +75,12 @@ const manifest = {
 
 for (const table of tables) {
   const rows = await fetchTable(table);
-  manifest.tables[table.name] = { rows: rows.length };
-  await writeFile(path.join(OUT_DIR, `${table.name}.json`), JSON.stringify(rows), 'utf8');
+  const json = JSON.stringify(rows);
+  manifest.tables[table.name] = {
+    rows: rows.length,
+    bytes: Buffer.byteLength(json, 'utf8')
+  };
+  await writeFile(path.join(OUT_DIR, `${table.name}.json`), json, 'utf8');
   console.log(`✓ ${table.name}: ${rows.length} rows`);
 }
 
