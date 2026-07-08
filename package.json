@@ -14,7 +14,7 @@
     "install:admin-rpc": "node scripts/install-admin-rpc-snippet.mjs",
     "install:admin-enter": "node scripts/install-admin-enter-navigation-snippet.mjs",
     "audit:egress": "node scripts/audit-supabase-egress.mjs",
-    "optimize:egress": "npm run build:static-data && npm run install:static-cache && npm run install:admin-rpc && npm run install:admin-enter && npm run audit:egress"
+    "optimize:egress": "npm run build:static-data && npm run install:static-cache && npm run install:admin-rpc && npm run audit:egress"
   },
   "devDependencies": {
     "vite": "^5.2.0"
