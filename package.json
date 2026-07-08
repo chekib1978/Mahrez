@@ -13,8 +13,9 @@
     "install:static-cache": "node scripts/install-static-cache-snippet.mjs",
     "install:admin-rpc": "node scripts/install-admin-rpc-snippet.mjs",
     "install:admin-enter": "node scripts/install-admin-enter-navigation-snippet.mjs",
+    "uninstall:admin-enter": "node scripts/uninstall-admin-enter-navigation-snippet.mjs",
     "audit:egress": "node scripts/audit-supabase-egress.mjs",
-    "optimize:egress": "npm run build:static-data && npm run install:static-cache && npm run install:admin-rpc && npm run audit:egress"
+    "optimize:egress": "npm run build:static-data && npm run install:static-cache && npm run install:admin-rpc && npm run uninstall:admin-enter && npm run audit:egress"
   },
   "devDependencies": {
     "vite": "^5.2.0"
