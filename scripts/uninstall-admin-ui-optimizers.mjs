@@ -1,9 +1,7 @@
 #!/usr/bin/env node
 /**
- * Emergency rollback for admin UI helper scripts.
- * Removes scripts that can interfere with native app.js behavior.
- * Targets both source admin.html and generated Plesk admin index.html.
- * Keeps the public storefront static-data optimization untouched.
+ * Removes only admin-enter-navigation.js.
+ * Keeps admin-rpc-optimizer.js active because RPC optimisation does not touch keyboard events.
  */
 import { readFile, writeFile } from 'node:fs/promises';
 
@@ -14,9 +12,7 @@ const targets = (process.env.ADMIN_HTML_TARGETS || 'admin.html,deploy-plesk-test
 
 const patterns = [
   /\s*<script\s+src=["']admin-enter-navigation\.js["']><\/script>\s*/g,
-  /\s*<script\s+src=["']\.\/admin-enter-navigation\.js["']><\/script>\s*/g,
-  /\s*<script\s+src=["']admin-rpc-optimizer\.js["']><\/script>\s*/g,
-  /\s*<script\s+src=["']\.\/admin-rpc-optimizer\.js["']><\/script>\s*/g
+  /\s*<script\s+src=["']\.\/admin-enter-navigation\.js["']><\/script>\s*/g
 ];
 
 for (const target of targets) {
@@ -31,10 +27,9 @@ for (const target of targets) {
   const before = html;
   for (const pattern of patterns) html = html.replace(pattern, '\n');
 
-  if (html === before) {
-    console.log(`✓ ${target}: no admin UI optimizer scripts found`);
-  } else {
+  if (html === before) console.log(`✓ ${target}: admin Enter script was not present`);
+  else {
     await writeFile(target, html, 'utf8');
-    console.log(`✓ ${target}: admin UI optimizer scripts removed`);
+    console.log(`✓ ${target}: admin Enter script removed, RPC kept`);
   }
 }
