@@ -1,9 +1,11 @@
 /**
- * ADMIN RPC OPTIMIZER
+ * ADMIN RPC OPTIMIZER - SAFE MODE
  *
  * Converts selected heavy backoffice REST reads into slim RPC calls.
- * Load after supabase-cache-layer.js and before app.js.
- * If the RPC SQL is not installed yet, it silently falls back to the original REST request.
+ * Safety rules:
+ * - Products/customers are only optimized when the original request already has limit/range.
+ * - This avoids returning thousands of rows repeatedly and causing browser OOM.
+ * - If anything fails, it falls back to the original REST request.
  */
 (function () {
   'use strict';
@@ -13,7 +15,9 @@
 
   var previousFetch = window.fetch.bind(window);
   var REST_MARKER = '/rest/v1/';
-  var stats = { rpc: 0, fallback: 0, bypassed: 0 };
+  var DEFAULT_LIMIT = 200;
+  var MAX_LIMIT = 500;
+  var stats = { rpc: 0, fallback: 0, bypassed: 0, skippedNoLimit: 0 };
 
   function getUrl(input) {
     return typeof input === 'string' ? input : (input && input.url) || '';
@@ -21,6 +25,12 @@
 
   function getMethod(input, init) {
     return ((init && init.method) || (input && input.method) || 'GET').toUpperCase();
+  }
+
+  function readHeader(headers, name) {
+    if (!headers) return '';
+    if (typeof headers.get === 'function') return headers.get(name) || '';
+    return headers[name] || headers[name.toLowerCase()] || '';
   }
 
   function extractTable(url) {
@@ -53,19 +63,29 @@
     return url.slice(0, url.indexOf(REST_MARKER) + REST_MARKER.length) + 'rpc/' + fnName;
   }
 
-  function getLimit(params, fallback) {
-    var value = Number(params.get('limit') || fallback);
-    if (!Number.isFinite(value) || value <= 0) return fallback;
-    return value;
+  function getLimit(params, headers, fallback) {
+    var range = readHeader(headers, 'Range');
+    if (range && /^\d+-\d+$/.test(range)) {
+      var parts = range.split('-').map(Number);
+      return Math.min(Math.max(parts[1] - parts[0] + 1, 1), MAX_LIMIT);
+    }
+    var value = Number(params.get('limit') || fallback || DEFAULT_LIMIT);
+    if (!Number.isFinite(value) || value <= 0) return DEFAULT_LIMIT;
+    return Math.min(value, MAX_LIMIT);
   }
 
-  function getOffset(params) {
+  function getOffset(params, headers) {
+    var range = readHeader(headers, 'Range');
+    if (range && /^\d+-\d+$/.test(range)) return Number(range.split('-')[0]) || 0;
     var value = Number(params.get('offset') || 0);
     return Number.isFinite(value) && value > 0 ? value : 0;
   }
 
+  function hasExplicitPaging(params, headers) {
+    return params.has('limit') || Boolean(readHeader(headers, 'Range'));
+  }
+
   function canOptimize(params) {
-    // Only optimize simple list reads. Filtered/detail reads stay untouched.
     var allowed = { select: true, order: true, limit: true, offset: true };
     var ok = true;
     params.forEach(function (_value, key) {
@@ -74,37 +94,32 @@
     return ok;
   }
 
-  function planFor(url) {
+  function planFor(url, headers) {
     var table = extractTable(url);
     var params = parseParams(url);
     if (!canOptimize(params)) return null;
 
+    // Big master data tables can OOM if the app repeatedly asks for full lists.
+    // Optimize them only when the caller already requested a page/limit.
+    if ((table === 'products' || table === 'customers') && !hasExplicitPaging(params, headers)) {
+      stats.skippedNoLimit++;
+      return null;
+    }
+
     if (table === 'products') {
-      return {
-        fn: 'get_admin_products_light',
-        body: { p_search: '', p_limit: getLimit(params, 2000), p_offset: getOffset(params) }
-      };
+      return { fn: 'get_admin_products_light', body: { p_search: '', p_limit: getLimit(params, headers, DEFAULT_LIMIT), p_offset: getOffset(params, headers) } };
     }
 
     if (table === 'customers') {
-      return {
-        fn: 'get_admin_customers_light',
-        body: { p_search: '', p_limit: getLimit(params, 2000), p_offset: getOffset(params) }
-      };
+      return { fn: 'get_admin_customers_light', body: { p_search: '', p_limit: getLimit(params, headers, DEFAULT_LIMIT), p_offset: getOffset(params, headers) } };
     }
 
     if (table === 'fridge_sales') {
-      return {
-        fn: 'get_admin_fridge_sales_recent',
-        body: { p_limit: getLimit(params, 500) }
-      };
+      return { fn: 'get_admin_fridge_sales_recent', body: { p_limit: getLimit(params, headers, 300) } };
     }
 
     if (table === 'customer_payments') {
-      return {
-        fn: 'get_admin_customer_payments_recent',
-        body: { p_limit: getLimit(params, 500) }
-      };
+      return { fn: 'get_admin_customer_payments_recent', body: { p_limit: getLimit(params, headers, 300) } };
     }
 
     return null;
@@ -119,13 +134,14 @@
       return previousFetch(input, init);
     }
 
-    var plan = planFor(url);
+    var originalHeaders = (init && init.headers) || (input && input.headers) || {};
+    var plan = planFor(url, originalHeaders);
     if (!plan) {
       stats.bypassed++;
       return previousFetch(input, init);
     }
 
-    var headers = cloneHeaders((init && init.headers) || (input && input.headers));
+    var headers = cloneHeaders(originalHeaders);
     headers['content-type'] = 'application/json';
 
     return previousFetch(buildRpcUrl(url, plan.fn), {
@@ -152,5 +168,5 @@
     showStats: function () { console.table(this.stats()); }
   };
 
-  console.log('✅ Admin RPC Optimizer actif, grosses lectures redirigées vers RPC slim');
+  console.log('✅ Admin RPC Optimizer SAFE MODE actif');
 })();

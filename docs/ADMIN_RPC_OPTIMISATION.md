@@ -2,11 +2,16 @@
 
 But : réduire l'egress admin sans casser le temps réel.
 
-## Ce qui est ajouté
+## Mode sécurité anti-OOM
 
-- `SUPABASE_ADMIN_RPC_OPTIMIZATIONS.sql` : fonctions RPC slim pour les grosses lectures admin.
-- `admin-rpc-optimizer.js` : intercepte certaines lectures REST lourdes et les remplace par des appels RPC.
-- Le cache existant `supabase-cache-layer.js` garde les réponses RPC en cache car les fonctions commencent par `get_`.
+`admin-rpc-optimizer.js` est en **SAFE MODE** :
+
+- il optimise les listes paginées ou limitées,
+- il évite d'optimiser `products` et `customers` quand l'admin demande toute la table sans `limit`,
+- il limite les réponses RPC à 500 lignes max côté navigateur,
+- si une RPC échoue, il revient automatiquement à l'appel Supabase original.
+
+Pourquoi : charger 2000+ produits plusieurs milliers de fois peut provoquer `Out of Memory` dans Chrome.
 
 ## À installer dans Supabase
 
@@ -26,14 +31,6 @@ Lance dans le dossier projet :
 npm run install:admin-rpc
 ```
 
-Ça ajoute automatiquement :
-
-```html
-<script src="admin-rpc-optimizer.js"></script>
-```
-
-avant `app.js` dans `admin.html`.
-
 Ordre recommandé :
 
 ```html
@@ -41,10 +38,6 @@ Ordre recommandé :
 <script src="admin-rpc-optimizer.js"></script>
 <script src="app.js"></script>
 ```
-
-## Déploiement Plesk
-
-`npm run prepare:plesk-test` copie automatiquement `admin-rpc-optimizer.js` dans `/admin/` et l'injecte dans l'HTML admin du package.
 
 ## Vérification navigateur
 
@@ -55,8 +48,8 @@ ADMIN_RPC_OPTIMIZER.showStats()
 SUPABASE_CACHE.showStats()
 ```
 
-`rpc` doit monter quand tu ouvres les modules produits, clients, ventes frigo ou règlements clients.
+`rpc` doit monter sur les modules optimisés. `skippedNoLimit` peut monter aussi : c'est normal, ça veut dire que l'optimiseur a évité une requête trop grosse pour protéger la mémoire.
 
 ## Pourquoi pas cache statique admin ?
 
-Parce que l'admin doit rester frais : stock, ventes, caisse, commandes. RPC + cache court est le bon compromis : moins de données transférées, mais données encore fiables.
+Parce que l'admin doit rester frais : stock, ventes, caisse, commandes. RPC + cache court + limites mémoire est le bon compromis.
