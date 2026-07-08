@@ -4,6 +4,8 @@
  *
  * Required env:
  *   SUPABASE_URL=https://xxxx.supabase.co
+ *   or SUPABASE_REST_URL=https://xxxx.supabase.co/rest/v1/
+ *
  *   SUPABASE_SERVICE_ROLE_KEY=...   (preferred, server-side only)
  * or
  *   SUPABASE_ANON_KEY=...
@@ -17,13 +19,23 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_REST_URL = process.env.SUPABASE_REST_URL;
 const KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
 const OUT_DIR = process.env.STATIC_DATA_DIR || 'static-data';
 
-if (!SUPABASE_URL || !KEY) {
-  console.error('Missing SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY or SUPABASE_ANON_KEY');
+if ((!SUPABASE_URL && !SUPABASE_REST_URL) || !KEY) {
+  console.error('Missing SUPABASE_URL or SUPABASE_REST_URL, plus SUPABASE_SERVICE_ROLE_KEY or SUPABASE_ANON_KEY');
   process.exit(1);
 }
+
+function getRestBaseUrl() {
+  if (SUPABASE_REST_URL) return SUPABASE_REST_URL.replace(/\/$/, '');
+  const clean = SUPABASE_URL.replace(/\/$/, '');
+  if (clean.endsWith('/rest/v1')) return clean;
+  return `${clean}/rest/v1`;
+}
+
+const REST_BASE_URL = getRestBaseUrl();
 
 const tables = [
   {
@@ -46,7 +58,7 @@ const tables = [
 ];
 
 async function fetchTable(table) {
-  const url = `${SUPABASE_URL.replace(/\/$/, '')}/rest/v1/${table.name}?${table.query}`;
+  const url = `${REST_BASE_URL}/${table.name}?${table.query}`;
   const response = await fetch(url, {
     headers: {
       apikey: KEY,
@@ -70,6 +82,7 @@ const manifest = {
   version: String(Date.now()),
   generatedAt: new Date().toISOString(),
   strategy: 'public-static-json',
+  restBaseUrl: REST_BASE_URL.replace(/^https:\/\/([^./]+).*/, 'https://$1.supabase.co/rest/v1'),
   tables: {}
 };
 

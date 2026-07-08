@@ -7,22 +7,28 @@ Objectif réaliste : supprimer l'egress navigateur sur la boutique publique, et 
 1. `public-supabase-static-cache.js` intercepte les lectures publiques de `products` et `web_categories`.
 2. `scripts/build-static-public-data.mjs` génère `static-data/products.json`, `static-data/web_categories.json` et `static-data/manifest.json`.
 3. `scripts/install-static-cache-snippet.mjs` ajoute automatiquement le script cache dans `index.html` et `ecommerce.html`.
-4. `npm run optimize:egress` lance la génération des JSON puis l'installation du snippet.
+4. `npm run optimize:egress` lance la génération des JSON puis l'installation du snippet et l'audit anti-egress.
 
-## Commande recommandée sur le serveur ou la machine de build
+## Commande avec URL REST Supabase
 
 ```bash
-SUPABASE_URL="https://xxxx.supabase.co" \
-SUPABASE_SERVICE_ROLE_KEY="..." \
+SUPABASE_REST_URL="https://xxxx.supabase.co/rest/v1/" \
+SUPABASE_ANON_KEY="..." \
 npm run optimize:egress
 ```
 
 Sur Windows PowerShell :
 
 ```powershell
-$env:SUPABASE_URL="https://xxxx.supabase.co"
-$env:SUPABASE_SERVICE_ROLE_KEY="..."
+$env:SUPABASE_REST_URL="https://xxxx.supabase.co/rest/v1/"
+$env:SUPABASE_ANON_KEY="..."
 npm run optimize:egress
+```
+
+Si tu as la clé service role côté serveur, utilise-la à la place de l'anon key :
+
+```powershell
+$env:SUPABASE_SERVICE_ROLE_KEY="..."
 ```
 
 Puis uploader avec le site :
