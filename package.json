@@ -11,8 +11,9 @@
     "prepare:plesk-test": "node scripts/prepare-plesk-test.mjs",
     "build:static-data": "node scripts/build-static-public-data.mjs",
     "install:static-cache": "node scripts/install-static-cache-snippet.mjs",
+    "install:admin-rpc": "node scripts/install-admin-rpc-snippet.mjs",
     "audit:egress": "node scripts/audit-supabase-egress.mjs",
-    "optimize:egress": "npm run build:static-data && npm run install:static-cache && npm run audit:egress"
+    "optimize:egress": "npm run build:static-data && npm run install:static-cache && npm run install:admin-rpc && npm run audit:egress"
   },
   "devDependencies": {
     "vite": "^5.2.0"

@@ -18,7 +18,21 @@ SUPABASE_ADMIN_RPC_OPTIMIZATIONS.sql
 
 Puis exécute.
 
-## À charger dans l'admin
+## À charger dans l'admin local
+
+Lance dans le dossier projet :
+
+```powershell
+npm run install:admin-rpc
+```
+
+Ça ajoute automatiquement :
+
+```html
+<script src="admin-rpc-optimizer.js"></script>
+```
+
+avant `app.js` dans `admin.html`.
 
 Ordre recommandé :
 
@@ -27,6 +41,10 @@ Ordre recommandé :
 <script src="admin-rpc-optimizer.js"></script>
 <script src="app.js"></script>
 ```
+
+## Déploiement Plesk
+
+`npm run prepare:plesk-test` copie automatiquement `admin-rpc-optimizer.js` dans `/admin/` et l'injecte dans l'HTML admin du package.
 
 ## Vérification navigateur
 
