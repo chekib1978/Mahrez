@@ -8,7 +8,17 @@
     "preview": "vite preview",
     "scrape:parashop": "node scripts/scrape-parashop-public.mjs",
     "match:parashop": "node scripts/match-backoffice-parashop.mjs",
-    "prepare:plesk-test": "node scripts/prepare-plesk-test.mjs"
+    "prepare:plesk-test": "node scripts/prepare-plesk-test.mjs",
+    "build:static-data": "node scripts/build-static-public-data.mjs",
+    "install:static-cache": "node scripts/install-static-cache-snippet.mjs",
+    "install:admin-rpc": "node scripts/install-admin-rpc-snippet.mjs",
+    "install:admin-enter": "node scripts/install-admin-enter-navigation-snippet.mjs",
+    "uninstall:admin-enter": "node scripts/uninstall-admin-enter-navigation-snippet.mjs",
+    "uninstall:admin-ui-optimizers": "node scripts/uninstall-admin-ui-optimizers.mjs",
+    "install:admin-sales-dates": "node scripts/install-admin-sales-date-defaults-snippet.mjs",
+    "install:admin-local-today": "node scripts/install-admin-local-today-defaults-snippet.mjs",
+    "audit:egress": "node scripts/audit-supabase-egress.mjs",
+    "optimize:egress": "npm run build:static-data && npm run install:static-cache && npm run install:admin-rpc && npm run uninstall:admin-enter && npm run install:admin-sales-dates && npm run install:admin-local-today && npm run audit:egress"
   },
   "devDependencies": {
     "vite": "^5.2.0"
