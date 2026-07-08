@@ -13,6 +13,8 @@ const adminHtmlPath = path.join(rootDir, 'admin.html');
 const adminAppPath = path.join(rootDir, 'app.js');
 const adminStylesPath = path.join(rootDir, 'styles.css');
 const adminCachePath = path.join(rootDir, 'supabase-cache-layer.js');
+const publicStaticCachePath = path.join(rootDir, 'public-supabase-static-cache.js');
+const staticDataDir = path.join(rootDir, 'static-data');
 const adminLogoPath = path.join(rootDir, 'logo.png');
 const xlsxVendorPath = path.join(rootDir, 'node_modules', 'xlsx', 'dist', 'xlsx.full.min.js');
 
@@ -24,24 +26,28 @@ const sqlSourceFiles = [
   'MIGRATION_INITIALISATION_SUPABASE.sql'
 ];
 
-const rootHtaccess = `<IfModule mod_rewrite.c>
+const rootHtaccess = `
 RewriteEngine On
 RewriteBase /
-RewriteRule ^index\\.html$ - [L]
+RewriteRule ^index\.html$ - [L]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule . /index.html [L]
+
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType application/json "access plus 1 hour"
+  ExpiresByType application/javascript "access plus 1 day"
 </IfModule>
 `;
 
-const adminHtaccess = `<IfModule mod_rewrite.c>
+const adminHtaccess = `
 RewriteEngine On
 RewriteBase /admin/
-RewriteRule ^index\\.html$ - [L]
+RewriteRule ^index\.html$ - [L]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule . /admin/index.html [L]
-</IfModule>
 `;
 
 function normalizeAdminHtml(content) {
@@ -50,6 +56,15 @@ function normalizeAdminHtml(content) {
     .replace(/src="app\.js"/g, 'src="./app.js"')
     .replace(/src="supabase-cache-layer\.js"/g, 'src="./supabase-cache-layer.js"')
     .replace(/src="\/node_modules\/xlsx\/dist\/xlsx\.full\.min\.js"/g, 'src="./vendor/xlsx.full.min.js"');
+}
+
+function injectPublicStaticCache(content) {
+  const snippet = '<script src="/public-supabase-static-cache.js"></script>';
+  const html = String(content);
+  if (html.includes('public-supabase-static-cache.js')) return html;
+  if (html.includes('</head>')) return html.replace('</head>', `  ${snippet}\n</head>`);
+  if (html.includes('<body')) return html.replace('<body', `${snippet}\n<body`);
+  return `${snippet}\n${html}`;
 }
 
 async function safeExists(target) {
@@ -77,12 +92,26 @@ async function copyDirContents(sourceDir, destinationDir) {
   }
 }
 
+async function injectIntoBuiltHtmlFiles(dir) {
+  const entries = await fs.readdir(dir, { withFileTypes: true });
+  for (const entry of entries) {
+    const target = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      if (entry.name !== 'admin') await injectIntoBuiltHtmlFiles(target);
+      continue;
+    }
+    if (!entry.name.endsWith('.html')) continue;
+    const html = await fs.readFile(target, 'utf8');
+    await fs.writeFile(target, injectPublicStaticCache(html), 'utf8');
+  }
+}
+
 async function main() {
   if (!(await safeExists(shopDistDir))) {
     throw new Error('Le dossier mv-para-sparkle-main/dist est introuvable. Lancez d abord le build du site web.');
   }
 
-  for (const requiredFile of [adminHtmlPath, adminAppPath, adminStylesPath, adminCachePath, adminLogoPath, xlsxVendorPath]) {
+  for (const requiredFile of [adminHtmlPath, adminAppPath, adminStylesPath, adminCachePath, publicStaticCachePath, adminLogoPath, xlsxVendorPath]) {
     if (!(await safeExists(requiredFile))) {
       throw new Error(`Fichier introuvable: ${requiredFile}`);
     }
@@ -96,6 +125,14 @@ async function main() {
 
   // --- Boutique : contenu du build React ---
   await copyDirContents(shopDistDir, httpdocsDir);
+  await injectIntoBuiltHtmlFiles(httpdocsDir);
+  await fs.copyFile(publicStaticCachePath, path.join(httpdocsDir, 'public-supabase-static-cache.js'));
+
+  if (await safeExists(staticDataDir)) {
+    await fs.cp(staticDataDir, path.join(httpdocsDir, 'static-data'), { recursive: true, force: true });
+  } else {
+    console.warn('ATTENTION: static-data/ absent. Lancez npm run build:static-data pour supprimer l egress public produits/categories.');
+  }
 
   // --- Admin : HTML normalisé + assets ---
   const adminHtml = await fs.readFile(adminHtmlPath, 'utf8');
@@ -124,15 +161,22 @@ async function main() {
     'Envoyer le contenu du dossier httpdocs/ vers la racine web du domaine/sous-domaine cible.',
     '',
     'URLs attendues :',
-    '- https://<votre-domaine>/         -> boutique (React SPA)',
-    '- https://<votre-domaine>/admin/   -> backoffice (admin.html)',
+    '- https:// / -> boutique (React SPA)',
+    '- https:// /admin/ -> backoffice (admin.html)',
+    '',
+    'Optimisation egress Supabase :',
+    '- public-supabase-static-cache.js est inclus dans la boutique publique',
+    '- static-data/products.json et static-data/web_categories.json doivent être présents',
+    '- générer ces fichiers avec npm run build:static-data avant le packaging Plesk',
+    '- l admin reste en temps réel avec supabase-cache-layer.js',
     '',
     'Structure :',
-    '- httpdocs/        = boutique (build React de mv-para-sparkle-main)',
-    '- httpdocs/admin/  = backoffice (index.html + app.js + styles.css + supabase-cache-layer.js + logo.png + vendor/xlsx.full.min.js)',
-    '- httpdocs/.htaccess        = rewrite SPA racine',
-    '- httpdocs/admin/.htaccess  = rewrite SPA admin',
-    '- sql/             = scripts SQL de reference (NE PAS uploader dans httpdocs)',
+    '- httpdocs/ = boutique (build React de mv-para-sparkle-main)',
+    '- httpdocs/static-data/ = JSON publics produits/catégories sans egress Supabase navigateur',
+    '- httpdocs/admin/ = backoffice (index.html + app.js + styles.css + supabase-cache-layer.js + logo.png + vendor/xlsx.full.min.js)',
+    '- httpdocs/.htaccess = rewrite SPA racine + cache navigateur JSON/JS',
+    '- httpdocs/admin/.htaccess = rewrite SPA admin',
+    '- sql/ = scripts SQL de reference (NE PAS uploader dans httpdocs)',
     '',
     'Important :',
     '- la boutique et le backoffice pointent sur la meme base Supabase',
