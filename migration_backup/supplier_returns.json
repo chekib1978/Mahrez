@@ -1,0 +1,20 @@
+[
+  {
+    "id": "3d23b557-a91b-4a05-9e68-c0467aab8651",
+    "return_number": "RTF-000002",
+    "supplier_id": "2d833fdf-7fc9-4518-bb42-7d6e4cc1d422",
+    "return_date": "2026-06-16",
+    "note": "DATE",
+    "total_ht": 67.109,
+    "created_at": "2026-06-16T21:52:43.943757+00:00"
+  },
+  {
+    "id": "bbbfdc3c-19cf-48bd-9689-bdc7f203991a",
+    "return_number": "RTF-000001",
+    "supplier_id": "39c31c68-7199-4c68-9437-34b905de876e",
+    "return_date": "2026-06-14",
+    "note": "EMBALLAGE",
+    "total_ht": 56,
+    "created_at": "2026-06-14T23:37:58.138667+00:00"
+  }
+]

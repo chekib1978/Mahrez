@@ -1,0 +1,2 @@
+id,payment_number,client_id,payment_date,amount,payment_mode,reference,note,statut,created_at
+a01e1987-c41d-4249-a463-f76aba388161,RCL-20260701-142533,7338f87c-141f-402c-b6ca-d79b478f3269,2026-07-01T00:00:00+00:00,50,ESPECE,,,VALIDE,2026-07-01T13:25:35.470817+00:00

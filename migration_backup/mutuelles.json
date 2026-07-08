@@ -1,0 +1,14 @@
+[
+  {
+    "id": "7f66efbf-6c19-43cd-b049-831f01ecac9e",
+    "nom": "SONEDE",
+    "taux_remboursement": 70,
+    "created_at": "2026-05-26T17:59:53.273979+00:00"
+  },
+  {
+    "id": "b15d9618-65be-41e8-b8fe-d09761f60582",
+    "nom": "STEG",
+    "taux_remboursement": 80,
+    "created_at": "2026-05-26T17:59:39.684262+00:00"
+  }
+]

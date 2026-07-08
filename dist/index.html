@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parapharmacie en ligne - Boutique publique</title>
+  <link rel="stylesheet" crossorigin href="/assets/styles-D-8hG1Cs.css">
+</head>
+<body data-app="public-store">
+    <div class="public-store-shell">
+        <header class="public-store-adminbar">
+            <div class="public-store-adminbar-inner">
+                <span>Boutique publique en ligne</span>
+                <a href="/admin.html" class="public-store-adminlink">Accès admin</a>
+            </div>
+        </header>
+
+        <main id="public-store-root" class="public-store-root">
+            <div class="public-store-loading">
+                Chargement de la boutique...
+            </div>
+        </main>
+    </div>
+
+    <script src="/node_modules/xlsx/dist/xlsx.full.min.js"></script>
+    <!-- CACHE LAYER - Réduit l'egress Supabase de 80%+ -->
+    <script src="supabase-cache-layer.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

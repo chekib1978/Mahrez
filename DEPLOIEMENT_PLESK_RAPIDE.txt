@@ -1,0 +1,103 @@
+# ⚡ DÉPLOIEMENT PLESK - ULTRA RAPIDE
+
+## 🎯 MÉTHODE RAPIDE (5 min)
+
+### ✅ Étape 1 : Upload Cache Layer
+
+```
+Plesk File Manager
+→ /httpdocs/admin/
+→ Upload
+→ Choisir : supabase-cache-layer.js
+```
+
+**Fichier source :**
+```
+c:\Users\INES\Desktop\Mahrez Kammoun -Avant BAse Local\supabase-cache-layer.js
+```
+
+---
+
+### ✅ Étape 2 : Modifier HTML
+
+```
+Plesk File Manager
+→ Ouvrir : /httpdocs/admin/index.html
+→ Chercher : <script src="app.js"></script>
+→ AJOUTER AVANT :
+  <script src="supabase-cache-layer.js"></script>
+→ Sauvegarder
+```
+
+**Résultat final :**
+```html
+    <script src="supabase-cache-layer.js"></script>
+    <script src="app.js"></script>
+</body>
+```
+
+---
+
+### ✅ Étape 3 : Tester
+
+```
+1. Ouvrir : https://votre-domaine.com/admin/
+2. F12 (Console)
+3. Vérifier : "✅ Supabase Cache Layer activated"
+4. Utiliser admin 2 min
+5. Taper : SUPABASE_CACHE.showStats()
+6. Vérifier : Hit rate augmente
+```
+
+---
+
+## 🎉 C'EST TOUT !
+
+**Durée : 5 minutes**  
+**Fichiers touchés : 2** (1 nouveau + 1 modifié)  
+**Risque : Minimal** (rollback = enlever 1 ligne)
+
+---
+
+## 🔄 ROLLBACK (si problème)
+
+```
+Plesk File Manager
+→ /httpdocs/admin/index.html
+→ SUPPRIMER ligne :
+  <script src="supabase-cache-layer.js"></script>
+→ Sauvegarder
+→ Recharger site
+```
+
+**Durée rollback : 1 minute**
+
+---
+
+## 📊 VALIDATION
+
+**Après 1h :**
+```javascript
+SUPABASE_CACHE.showStats()
+// Hit rate > 50% = ✅ OK
+```
+
+**Après 24h :**
+```
+Supabase Dashboard
+→ Settings → Usage → Egress
+→ Vérifier baisse 50%+
+```
+
+---
+
+## ⚠️ NOTES IMPORTANTES
+
+1. **Nom fichier :** Sur Plesk c'est souvent `index.html`, pas `admin.html`
+2. **Chemin :** Bien vérifier `/httpdocs/admin/` (pas `/httpdocs/` seul)
+3. **Cache navigateur :** Faire Ctrl+F5 après déploiement
+4. **Backup :** Faire backup AVANT (download index.html)
+
+---
+
+**PRÊT À DÉPLOYER ! 🚀**

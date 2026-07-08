@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Egress Detective - Diagnostic Complet</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .container {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #667eea;
+            margin: 0 0 10px 0;
+            font-size: 32px;
+        }
+        .subtitle {
+            color: #666;
+            margin: 0 0 30px 0;
+            font-size: 16px;
+        }
+        .alert {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .alert-danger {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+        }
+        .section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin: 0 0 15px 0;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        button.secondary {
+            background: #6c757d;
+        }
+        button.secondary:hover {
+            background: #5a6268;
+        }
+        button.danger {
+            background: #dc3545;
+        }
+        button.danger:hover {
+            background: #c82333;
+        }
+        #liveStats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 5px 0;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+        }
+        #results {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 600px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        .instructions {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .instructions ol {
+            margin: 10px 0 0 0;
+            padding-left: 20px;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-right: 5px;
+        }
+        .badge-danger { background: #dc3545; color: white; }
+        .badge-warning { background: #ffc107; color: #000; }
+        .badge-info { background: #17a2b8; color: white; }
+        .badge-success { background: #28a745; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Egress Detective</h1>
+        <p class="subtitle">Identifie TOUS les facteurs qui augmentent l'egress Supabase</p>
+
+        <div class="alert alert-danger">
+            <strong>⚠️ ATTENTION :</strong> Ce diagnostic est à utiliser <strong>AVANT</strong> le cache layer pour identifier les vrais coupables.
+        </div>
+
+        <div class="instructions">
+            <strong>📋 Mode d'emploi :</strong>
+            <ol>
+                <li>Cliquer sur "Démarrer Monitoring"</li>
+                <li>Ouvrir <code>admin.html</code> dans un autre onglet</li>
+                <li>Utiliser l'application normalement pendant 2-3 minutes</li>
+                <li>Revenir ici et cliquer "Générer Rapport"</li>
+                <li>Analyser les alertes 🔴🟠🟡</li>
+            </ol>
+        </div>
+
+        <div class="section">
+            <div class="section-title">📊 Statistiques en Temps Réel</div>
+            <div id="liveStats">
+                <div class="stat-card">
+                    <div class="stat-label">Requêtes</div>
+                    <div class="stat-value" id="stat-requests">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Egress Total</div>
+                    <div class="stat-value" id="stat-bytes">0 KB</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Projection / Jour</div>
+                    <div class="stat-value" id="stat-perday">0 MB</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Requêtes / Min</div>
+                    <div class="stat-value" id="stat-permin">0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">🎮 Actions</div>
+            <button onclick="startMonitoring()">🚀 Démarrer Monitoring</button>
+            <button onclick="generateReport()">📊 Générer Rapport</button>
+            <button class="secondary" onclick="exportJSON()">📥 Export JSON</button>
+            <button class="secondary" onclick="exportCSV()">📥 Export CSV</button>
+            <button class="danger" onclick="resetDetective()">🔄 Reset</button>
+        </div>
+
+        <div class="section">
+            <div class="section-title">📄 Rapport</div>
+            <div id="results">Cliquez sur "Démarrer Monitoring" puis utilisez l'application...</div>
+        </div>
+    </div>
+
+    <script src="egress-detective.js"></script>
+    <script>
+        let updateInterval = null;
+
+        function startMonitoring() {
+            const results = document.getElementById('results');
+            results.textContent = '🔍 Monitoring démarré...\n\nAllez sur admin.html et utilisez l\'application normalement pendant 2-3 minutes.\nLes stats s\'affichent en temps réel ci-dessus.\n\nRevenez ensuite cliquer sur "Générer Rapport".';
+            
+            // Update stats every second
+            if (updateInterval) clearInterval(updateInterval);
+            updateInterval = setInterval(updateLiveStats, 1000);
+        }
+
+        function updateLiveStats() {
+            if (!window.EGRESS_DETECTIVE) return;
+            
+            const report = EGRESS_DETECTIVE.getReport();
+            
+            document.getElementById('stat-requests').textContent = report.summary.totalRequests;
+            document.getElementById('stat-bytes').textContent = report.summary.totalBytes;
+            document.getElementById('stat-perday').textContent = report.summary.mbPerDay;
+            document.getElementById('stat-permin').textContent = report.summary.requestsPerMin;
+            
+            // Colorier selon niveau
+            const perdayEl = document.getElementById('stat-perday');
+            const mbPerDay = parseFloat(report.summary.mbPerDay.replace(' MB', ''));
+            if (mbPerDay > 1000) {
+                perdayEl.style.color = '#dc3545';
+            } else if (mbPerDay > 500) {
+                perdayEl.style.color = '#ffc107';
+            } else {
+                perdayEl.style.color = '#28a745';
+            }
+        }
+
+        function generateReport() {
+            if (!window.EGRESS_DETECTIVE) {
+                alert('Detective non chargé !');
+                return;
+            }
+            
+            const report = EGRESS_DETECTIVE.getReport();
+            const alerts = EGRESS_DETECTIVE.getAlerts();
+            const results = document.getElementById('results');
+            
+            let output = '';
+            output += '╔══════════════════════════════════════════════════╗\n';
+            output += '║          🔍 EGRESS DETECTIVE REPORT              ║\n';
+            output += '╚══════════════════════════════════════════════════╝\n\n';
+            
+            output += '📊 RÉSUMÉ:\n';
+            output += `  Durée: ${report.summary.duration}\n`;
+            output += `  Requêtes: ${report.summary.totalRequests}\n`;
+            output += `  Egress total: ${report.summary.totalBytes}\n`;
+            output += `  Projection/jour: ${report.summary.mbPerDay}\n`;
+            output += `  Requêtes/min: ${report.summary.requestsPerMin}\n`;
+            output += `  Taille moyenne: ${report.summary.avgRequestSize}\n\n`;
+            
+            output += '⚠️  ALERTES:\n';
+            if (alerts.length === 0) {
+                output += '  ✅ Aucune alerte - Tout est optimal !\n\n';
+            } else {
+                alerts.forEach(alert => {
+                    output += `  ${alert.level} [${alert.type}] ${alert.message}\n`;
+                    output += `     💡 Recommandation: ${alert.recommendation}\n\n`;
+                });
+            }
+            
+            output += '📋 TOP TABLES PAR EGRESS:\n';
+            const topTables = Object.entries(report.byTable)
+                .sort((a, b) => b[1].bytes - a[1].bytes)
+                .slice(0, 10);
+            topTables.forEach(([table, data], i) => {
+                const percent = ((data.bytes / (report.summary.totalBytes.replace(' MB', '') * 1024 * 1024)) * 100).toFixed(1);
+                output += `  ${i+1}. ${table.padEnd(20)} ${data.count} req   ${(data.bytes/1024).toFixed(0)} KB   (${percent}%)\n`;
+            });
+            
+            output += '\n🎯 TOP ENDPOINTS:\n';
+            report.topEndpoints.forEach((ep, i) => {
+                output += `  ${i+1}. ${ep.table}\n`;
+                output += `     ${ep.count} requêtes × ${ep.avgSize} = ${ep.bytes}\n`;
+                output += `     ${ep.endpoint.substring(0, 80)}...\n\n`;
+            });
+            
+            output += '\n📌 ACTIONS RECOMMANDÉES:\n';
+            const recommendations = getRecommendations(alerts, report);
+            recommendations.forEach((rec, i) => {
+                output += `  ${i+1}. ${rec}\n`;
+            });
+            
+            results.textContent = output;
+        }
+
+        function getRecommendations(alerts, report) {
+            const recs = [];
+            
+            // Selon alertes
+            const hasSelectAll = alerts.some(a => a.type === 'SELECT_ALL');
+            const hasNoLimit = alerts.some(a => a.type === 'NO_LIMIT');
+            const hasRepetitive = alerts.some(a => a.type === 'REPETITIVE');
+            const hasBigResponse = alerts.some(a => a.type === 'BIG_RESPONSE');
+            
+            if (hasSelectAll) {
+                recs.push('🔴 URGENT: Remplacer tous les "select=*" par colonnes spécifiques');
+            }
+            
+            if (hasNoLimit) {
+                recs.push('🟠 IMPORTANT: Ajouter "limit=100" ou pagination sur toutes les requêtes');
+            }
+            
+            if (hasRepetitive) {
+                recs.push('🟡 OPTIMISATION: Implémenter cache layer (déjà fourni !)');
+            }
+            
+            if (hasBigResponse) {
+                recs.push('🔴 URGENT: Réduire taille réponses (pagination + moins de colonnes)');
+            }
+            
+            // Toujours recommander cache
+            if (!hasRepetitive) {
+                recs.push('✅ Cache layer recommandé pour réduire requêtes répétitives');
+            }
+            
+            return recs;
+        }
+
+        function exportJSON() {
+            if (window.EGRESS_DETECTIVE) {
+                EGRESS_DETECTIVE.exportJSON();
+            }
+        }
+
+        function exportCSV() {
+            if (window.EGRESS_DETECTIVE) {
+                EGRESS_DETECTIVE.exportCSV();
+            }
+        }
+
+        function resetDetective() {
+            if (window.EGRESS_DETECTIVE) {
+                EGRESS_DETECTIVE.reset();
+                document.getElementById('results').textContent = 'Detective réinitialisé. Cliquez sur "Démarrer Monitoring".';
+                document.getElementById('stat-requests').textContent = '0';
+                document.getElementById('stat-bytes').textContent = '0 KB';
+                document.getElementById('stat-perday').textContent = '0 MB';
+                document.getElementById('stat-permin').textContent = '0';
+            }
+        }
+    </script>
+</body>
+</html>

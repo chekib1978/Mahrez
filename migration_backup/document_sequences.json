@@ -1,0 +1,47 @@
+[
+  {
+    "prefix": "RET",
+    "last_value": 1,
+    "updated_at": "2026-06-14T16:36:05.534455+00:00"
+  },
+  {
+    "prefix": "RTF",
+    "last_value": 2,
+    "updated_at": "2026-06-16T21:52:43.709367+00:00"
+  },
+  {
+    "prefix": "EMP",
+    "last_value": 3,
+    "updated_at": "2026-06-28T13:22:05.444416+00:00"
+  },
+  {
+    "prefix": "PRT",
+    "last_value": 7,
+    "updated_at": "2026-06-28T13:22:57.122346+00:00"
+  },
+  {
+    "prefix": "SOR",
+    "last_value": 6,
+    "updated_at": "2026-06-28T15:10:24.890461+00:00"
+  },
+  {
+    "prefix": "ENT",
+    "last_value": 4,
+    "updated_at": "2026-06-28T15:10:59.274636+00:00"
+  },
+  {
+    "prefix": "ACH",
+    "last_value": 16,
+    "updated_at": "2026-06-30T17:15:00.619011+00:00"
+  },
+  {
+    "prefix": "FAC",
+    "last_value": 9,
+    "updated_at": "2026-06-30T18:21:00.648233+00:00"
+  },
+  {
+    "prefix": "VTE",
+    "last_value": 34,
+    "updated_at": "2026-07-01T13:25:01.046853+00:00"
+  }
+]

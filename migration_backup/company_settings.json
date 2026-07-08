@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "company_name": "PARA MV",
+    "subtitle": "Parapharmacie / Edition professionnelle",
+    "address": "18 Rue Aziza Othmana, Tunis, Tunisie",
+    "city": "Mutuelle Ville",
+    "phone": "",
+    "mobile": "97460954",
+    "email": "",
+    "fiscal_id": "",
+    "website": "",
+    "rib": "",
+    "pharmacist_code": "",
+    "delivery_fee_standard": 7,
+    "delivery_fee_express": 8,
+    "delivery_fee_pickup": 0,
+    "updated_at": "2026-07-01T11:04:51.616798+00:00"
+  }
+]

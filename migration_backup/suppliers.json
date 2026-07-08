@@ -1,0 +1,30 @@
+[
+  {
+    "id": "2d833fdf-7fc9-4518-bb42-7d6e4cc1d422",
+    "nom": "PLANET MEDICAL PLUS",
+    "telephone": "70253280",
+    "matricule_fiscale": "1050321 ABM 000",
+    "created_at": "2026-06-02T16:56:42.425602+00:00"
+  },
+  {
+    "id": "39c31c68-7199-4c68-9437-34b905de876e",
+    "nom": "COTUPHA",
+    "telephone": "71025025",
+    "matricule_fiscale": null,
+    "created_at": "2026-05-26T19:26:46.123875+00:00"
+  },
+  {
+    "id": "89c04a5b-3993-4c4a-8b0b-9818e4f717ea",
+    "nom": "PARAGROS",
+    "telephone": "70825429",
+    "matricule_fiscale": "1317893M/A/M/000",
+    "created_at": "2026-06-02T16:40:09.599194+00:00"
+  },
+  {
+    "id": "977c5424-f175-44de-a13a-1ced1c18ffb3",
+    "nom": "MEDICA CONSEIL",
+    "telephone": null,
+    "matricule_fiscale": null,
+    "created_at": "2026-06-16T12:36:01.100449+00:00"
+  }
+]

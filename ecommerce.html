@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MaPara - Votre Parapharmacie de Confiance</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #b12c8a; /* Magenta/Purple */
+            --secondary: #108c4c; /* Forest Green */
+            --dark: #333333;
+            --light: #ffffff;
+            --bg-gray: #f1f3f6;
+            --text-gray: #777777;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+        }
+
+        /* Top Bar */
+        .header-top {
+            background: var(--light);
+            padding: 15px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .search-container {
+            flex: 0.6;
+            position: relative;
+            display: flex;
+        }
+
+        .search-container input {
+            width: 100%;
+            padding: 12px 20px;
+            border: 2px solid #eee;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .search-container input:focus {
+            border-color: var(--primary);
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            bottom: 5px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0 20px;
+            border-radius: 50px;
+            cursor: pointer;
+        }
+
+        .header-icons {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .icon-item {
+            text-decoration: none;
+            color: var(--dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            position: relative;
+        }
+
+        .icon-item span.badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--secondary);
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 50%;
+        }
+
+        /* Nav Bar */
+        nav {
+            background: var(--primary);
+            padding: 0 5%;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+
+        .nav-links li a {
+            display: block;
+            padding: 15px 20px;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            transition: var(--transition);
+        }
+
+        .nav-links li a:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        /* Hero Slider */
+        .hero {
+            position: relative;
+            height: 450px;
+            background-image: url('pharmacy_hero_banner_1777491573939.png');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            padding: 0 10%;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to right, rgba(255,255,255,0.9), transparent);
+            z-index: 1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 500px;
+        }
+
+        .hero-content h1 {
+            font-size: 3rem;
+            color: var(--primary);
+            line-height: 1.1;
+            margin-bottom: 20px;
+        }
+
+        .hero-content p {
+            font-size: 1.1rem;
+            color: var(--text-gray);
+            margin-bottom: 30px;
+        }
+
+        .btn-shop {
+            background: var(--secondary);
+            color: white;
+            padding: 15px 40px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            display: inline-block;
+            transition: var(--transition);
+        }
+
+        .btn-shop:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(16, 140, 76, 0.3);
+        }
+
+        /* Services Bar */
+        .services {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            padding: 30px 5%;
+            background: var(--bg-gray);
+            gap: 20px;
+        }
+
+        .service-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .service-icon {
+            font-size: 2rem;
+            color: var(--primary);
+        }
+
+        .service-text h4 {
+            font-size: 0.9rem;
+            margin-bottom: 2px;
+        }
+
+        .service-text p {
+            font-size: 0.8rem;
+            color: var(--text-gray);
+        }
+
+        /* Products Grid */
+        .products-section {
+            padding: 60px 5%;
+        }
+
+        .section-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 15px;
+        }
+
+        .section-title h2 {
+            font-size: 1.8rem;
+            position: relative;
+        }
+
+        .section-title h2::after {
+            content: '';
+            position: absolute;
+            bottom: -17px;
+            left: 0;
+            width: 80px;
+            height: 2px;
+            background: var(--primary);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 25px;
+        }
+
+        .product-card {
+            background: white;
+            border: 1px solid #eee;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .product-card:hover {
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            border-color: var(--primary);
+        }
+
+        .product-img {
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5rem;
+            margin-bottom: 20px;
+            background: #f9f9f9;
+            border-radius: 10px;
+        }
+
+        .product-brand {
+            font-size: 0.8rem;
+            color: var(--text-gray);
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .product-name {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            height: 48px;
+            overflow: hidden;
+        }
+
+        .product-price {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        .btn-add {
+            width: 100%;
+            padding: 12px;
+            background: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-add:hover {
+            background: var(--primary);
+        }
+
+        .discount-badge {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: #ff4d4d;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 5px;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+
+        /* Footer */
+        footer {
+            background: #333;
+            color: white;
+            padding: 60px 5% 30px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-col h4 {
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+            position: relative;
+        }
+
+        .footer-col ul {
+            list-style: none;
+        }
+
+        .footer-col ul li {
+            margin-bottom: 12px;
+        }
+
+        .footer-col ul li a {
+            color: #ccc;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .footer-col ul li a:hover {
+            color: var(--primary);
+            padding-left: 5px;
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid #444;
+            color: #888;
+            font-size: 0.85rem;
+        }
+        
+        .admin-link {
+            color: #666;
+            text-decoration: none;
+            margin-top: 10px;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="header-top">
+        <a href="#" class="logo">Ma<span>Para.</span></a>
+        <div class="search-container">
+            <input type="text" placeholder="Rechercher un produit, une marque...">
+            <button class="search-btn">Rechercher</button>
+        </div>
+        <div class="header-icons">
+            <a href="#" class="icon-item">👤<br>Compte</a>
+            <a href="#" class="icon-item">🛒<span class="badge">0</span><br>Panier</a>
+        </div>
+    </div>
+
+    <nav>
+        <ul class="nav-links">
+            <li><a href="#">Visage</a></li>
+            <li><a href="#">Corps</a></li>
+            <li><a href="#">Cheveux</a></li>
+            <li><a href="#">Bébé & Maman</a></li>
+            <li><a href="#">Solaire</a></li>
+            <li><a href="#">Hygiène</a></li>
+            <li><a href="#">Bio & Naturel</a></li>
+        </ul>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1>Vos soins premium à prix réduit</h1>
+            <p>Retrouvez les plus grandes marques de parapharmacie livrées partout en Tunisie.</p>
+            <a href="#" class="btn-shop">Découvrir les offres</a>
+        </div>
+    </section>
+
+    <div class="services">
+        <div class="service-item">
+            <div class="service-icon">🚚</div>
+            <div class="service-text">
+                <h4>Livraison Rapide</h4>
+                <p>Partout en Tunisie</p>
+            </div>
+        </div>
+        <div class="service-item">
+            <div class="service-icon">💳</div>
+            <div class="service-text">
+                <h4>Paiement Sécurisé</h4>
+                <p>À la livraison ou en ligne</p>
+            </div>
+        </div>
+        <div class="service-item">
+            <div class="service-icon">✅</div>
+            <div class="service-text">
+                <h4>Produits 100% Authentiques</h4>
+                <p>Garantie par nos experts</p>
+            </div>
+        </div>
+        <div class="service-item">
+            <div class="service-icon">📞</div>
+            <div class="service-text">
+                <h4>Conseil Pharmaceutique</h4>
+                <p>Support 7j/7</p>
+            </div>
+        </div>
+    </div>
+
+    <section class="products-section">
+        <div class="section-title">
+            <h2>Nouveautés</h2>
+            <a href="#" style="color: var(--primary); font-weight: 600; text-decoration: none;">Voir tout →</a>
+        </div>
+        <div class="grid">
+            <div class="product-card">
+                <span class="discount-badge">-20%</span>
+                <div class="product-img">🧴</div>
+                <p class="product-brand">VICHY</p>
+                <h3 class="product-name">Mineral 89 Sérum Booster Quotidien 50ml</h3>
+                <p class="product-price">89.900 TND</p>
+                <button class="btn-add">AJOUTER AU PANIER</button>
+            </div>
+            <div class="product-card">
+                <div class="product-img">🧼</div>
+                <p class="product-brand">LA ROCHE POSAY</p>
+                <h3 class="product-name">Effaclar Gel Moussant Purifiant 400ml</h3>
+                <p class="product-price">54.500 TND</p>
+                <button class="btn-add">AJOUTER AU PANIER</button>
+            </div>
+            <div class="product-card">
+                <span class="discount-badge">-15%</span>
+                <div class="product-img">☀️</div>
+                <p class="product-brand">BIODERMA</p>
+                <h3 class="product-name">Photoderm Aquafluide SPF 50+ Invisible</h3>
+                <p class="product-price">42.000 TND</p>
+                <button class="btn-add">AJOUTER AU PANIER</button>
+            </div>
+            <div class="product-card">
+                <div class="product-img">💊</div>
+                <p class="product-brand">SVR</p>
+                <h3 class="product-name">Ampoule [C] Anti-Ox Vitamin C 30ml</h3>
+                <p class="product-price">112.000 TND</p>
+                <button class="btn-add">AJOUTER AU PANIER</button>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-grid">
+            <div class="footer-col">
+                <a href="#" class="logo" style="color: white; margin-bottom: 20px;">Ma<span>Para.</span></a>
+                <p style="color: #ccc; font-size: 0.9rem;">Votre parapharmacie en ligne numéro 1 en Tunisie. Qualité, prix et conseil.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Catégories</h4>
+                <ul>
+                    <li><a href="#">Visage</a></li>
+                    <li><a href="#">Corps</a></li>
+                    <li><a href="#">Cheveux</a></li>
+                    <li><a href="#">Solaire</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Informations</h4>
+                <ul>
+                    <li><a href="#">Qui sommes-nous ?</a></li>
+                    <li><a href="#">Conditions de vente</a></li>
+                    <li><a href="#">Livraison</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Contact</h4>
+                <p style="color: #ccc; font-size: 0.9rem;">📍 Tunis, Tunisie</p>
+                <p style="color: #ccc; font-size: 0.9rem; margin-top: 10px;">📞 +216 71 000 000</p>
+                <p style="color: #ccc; font-size: 0.9rem; margin-top: 10px;">📧 contact@mapara.tn</p>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>&copy; 2026 MaPara Tunisie. Tous droits réservés.</p>
+            <a href="index.html" class="admin-link">Espace Administration</a>
+        </div>
+    </footer>
+</body>
+</html>

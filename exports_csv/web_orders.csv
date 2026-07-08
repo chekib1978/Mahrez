@@ -1,0 +1,3 @@
+id,order_number,customer_name,customer_phone,customer_email,customer_address,notes,delivery_mode,payment_mode,delivery_fee_ttc,total_ttc,status,stock_decremented,created_at,updated_at
+1f196d34-071b-486d-a06f-055eda9b8c2a,WEB-20260627-111700,chekib,56669963,,41 Rue Houssine bouzaiene Den Den,,Livraison standard,Paiement a la livraison,0,17.04,Expédiée,true,2026-06-27T10:21:04.369804+00:00,2026-06-28T16:19:37.230925+00:00
+0a2d2348-0c9e-47f5-b1a1-29e5beef0765,WEB-20260627-113720,chekib,56669963,,41 Rue Houssine bouzaiene Den Den,,Livraison standard,Paiement a la livraison,0,17.04,Expédiée,true,2026-06-27T10:41:23.754953+00:00,2026-06-28T16:19:26.523868+00:00

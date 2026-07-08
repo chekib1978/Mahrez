@@ -1,0 +1,14 @@
+[
+  {
+    "id": "a01e1987-c41d-4249-a463-f76aba388161",
+    "payment_number": "RCL-20260701-142533",
+    "client_id": "7338f87c-141f-402c-b6ca-d79b478f3269",
+    "payment_date": "2026-07-01T00:00:00+00:00",
+    "amount": 50,
+    "payment_mode": "ESPECE",
+    "reference": null,
+    "note": null,
+    "statut": "VALIDE",
+    "created_at": "2026-07-01T13:25:35.470817+00:00"
+  }
+]

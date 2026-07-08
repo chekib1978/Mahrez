@@ -1,0 +1,141 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&family=Sora:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* MV PARA — Premium parapharmacy design system
+   Sage green + rose gold. All colors HSL.
+*/
+
+@layer base {
+  :root {
+    /* Base */
+    --background: 40 33% 98%;
+    --foreground: 150 18% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 150 18% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 150 18% 12%;
+
+    /* Sage green primary */
+    --primary: 145 22% 32%;
+    --primary-foreground: 40 33% 98%;
+    --primary-glow: 145 28% 52%;
+    --primary-soft: 145 25% 92%;
+
+    /* Rose gold accent */
+    --accent: 18 45% 68%;
+    --accent-foreground: 150 18% 12%;
+    --accent-deep: 14 40% 58%;
+    --accent-soft: 22 50% 94%;
+
+    /* Cream secondary */
+    --secondary: 38 35% 95%;
+    --secondary-foreground: 150 18% 18%;
+
+    --muted: 40 20% 94%;
+    --muted-foreground: 150 8% 42%;
+
+    --destructive: 0 70% 52%;
+    --destructive-foreground: 40 33% 98%;
+
+    --border: 40 18% 88%;
+    --input: 40 18% 88%;
+    --ring: 145 22% 32%;
+
+    --radius: 0.75rem;
+
+    /* Gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(145 25% 96%) 0%, hsl(22 50% 96%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(145 22% 32%) 0%, hsl(145 28% 42%) 100%);
+    --gradient-gold: linear-gradient(135deg, hsl(18 45% 68%) 0%, hsl(28 55% 78%) 100%);
+    --gradient-soft: linear-gradient(180deg, hsl(40 33% 98%) 0%, hsl(145 20% 95%) 100%);
+
+    /* Shadows */
+    --shadow-soft: 0 4px 20px -8px hsl(145 22% 32% / 0.12);
+    --shadow-elegant: 0 20px 50px -20px hsl(145 22% 32% / 0.18);
+    --shadow-gold: 0 10px 40px -15px hsl(18 45% 60% / 0.35);
+    --shadow-card: 0 2px 12px -4px hsl(150 18% 20% / 0.08);
+
+    /* Transitions */
+    --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-spring: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 150 18% 8%;
+    --foreground: 40 33% 96%;
+    --card: 150 18% 10%;
+    --card-foreground: 40 33% 96%;
+    --popover: 150 18% 10%;
+    --popover-foreground: 40 33% 96%;
+    --primary: 145 28% 62%;
+    --primary-foreground: 150 18% 8%;
+    --secondary: 150 12% 16%;
+    --secondary-foreground: 40 33% 96%;
+    --muted: 150 12% 16%;
+    --muted-foreground: 40 10% 65%;
+    --accent: 18 45% 68%;
+    --accent-foreground: 150 18% 8%;
+    --destructive: 0 62% 40%;
+    --destructive-foreground: 40 33% 96%;
+    --border: 150 12% 18%;
+    --input: 150 12% 18%;
+    --ring: 145 28% 62%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, h4, .font-display {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+  .font-price {
+    font-family: 'DM Serif Display', Georgia, serif;
+    letter-spacing: -0.02em;
+  }
+  .font-brand {
+    font-family: 'Sora', 'Inter', system-ui, sans-serif;
+    letter-spacing: -0.055em;
+  }
+}
+
+@layer utilities {
+  .gradient-hero { background: var(--gradient-hero); }
+  .gradient-primary { background: var(--gradient-primary); }
+  .gradient-gold { background: var(--gradient-gold); }
+  .gradient-soft { background: var(--gradient-soft); }
+  .shadow-soft { box-shadow: var(--shadow-soft); }
+  .shadow-elegant { box-shadow: var(--shadow-elegant); }
+  .shadow-gold { box-shadow: var(--shadow-gold); }
+  .shadow-card { box-shadow: var(--shadow-card); }
+  .transition-smooth { transition: var(--transition-smooth); }
+  .transition-spring { transition: var(--transition-spring); }
+  .text-gold {
+    background: var(--gradient-gold);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}

@@ -1,0 +1,18 @@
+[
+  {
+    "id": "1c34d7cd-01e0-4e73-9fa4-9bca0d4ebba5",
+    "supplier_return_id": "3d23b557-a91b-4a05-9e68-c0467aab8651",
+    "product_id": "4355603c-71aa-44a8-9d70-df1298b62e3b",
+    "quantite": 1,
+    "prix_achat_ht": 67.109,
+    "created_at": "2026-06-16T21:52:44.133201+00:00"
+  },
+  {
+    "id": "e539a984-d346-4c64-b3ab-0490be9977e7",
+    "supplier_return_id": "bbbfdc3c-19cf-48bd-9689-bdc7f203991a",
+    "product_id": "3abfbffc-7a92-4c2b-831d-044e9b2ae593",
+    "quantite": 1,
+    "prix_achat_ht": 56,
+    "created_at": "2026-06-14T23:37:58.328662+00:00"
+  }
+]

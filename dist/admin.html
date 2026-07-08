@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administration - Gestion Commerciale Parapharmacie</title>
+  <link rel="stylesheet" crossorigin href="/assets/styles-D-8hG1Cs.css">
+</head>
+<body data-app="admin">
+    <div class="desktop-app">
+        <header class="ribbon">
+            <div class="ribbon-tabs">
+                <div class="ribbon-tab" data-theme="accueil" onclick="switchRibbonTab('accueil')"><span class="ribbon-tab-icon">⌂</span><span>Accueil</span></div>
+                <div class="ribbon-tab active" data-theme="ventes" onclick="switchRibbonTab('ventes')"><span class="ribbon-tab-icon">✓</span><span>Ventes</span></div>
+                <div class="ribbon-tab" data-theme="achats" onclick="switchRibbonTab('achats')"><span class="ribbon-tab-icon">+</span><span>Achats</span></div>
+                <div class="ribbon-tab" data-theme="stocks" onclick="switchRibbonTab('stocks')"><span class="ribbon-tab-icon">▦</span><span>Stocks</span></div>
+                <div class="ribbon-tab" data-theme="mutuelles" onclick="switchRibbonTab('mutuelles')"><span class="ribbon-tab-icon">◆</span><span>Mutuelles</span></div>
+                <div class="ribbon-tab" data-theme="ecommerce" onclick="switchRibbonTab('ecommerce')"><span class="ribbon-tab-icon">◎</span><span>E-commerce</span></div>
+                <div class="ribbon-tab" data-theme="config" onclick="switchRibbonTab('config')"><span class="ribbon-tab-icon">⚙</span><span>Configuration</span></div>
+            </div>
+            
+            <div id="ribbon-content">
+                <div class="ribbon-panel active" id="panel-accueil">
+                    <div class="ribbon-group">
+                        <div class="ribbon-buttons">
+                            <div class="ribbon-button-large" onclick="openTab('dashboard')">
+                                <span class="ribbon-icon-large">📊</span>
+                                <span class="ribbon-label">Tableau de bord</span>
+                            </div>
+                        </div>
+                        <div class="ribbon-group-title">Général</div>
+                    </div>
+                </div>
+
+                <div class="ribbon-panel" id="panel-ventes">
+                    <div class="ribbon-group">
+                        <div class="ribbon-buttons">
+                            <div class="ribbon-button-large ribbon-button-sale-primary" onclick="openTab('vente')">
+                                <span class="ribbon-icon-large">🛒</span>
+                                <span class="ribbon-label">Nouvelle Vente</span>
+                            </div>
+                        </div>
+                        <div class="ribbon-group-title">Saisie</div>
+                    </div>
+                    <div class="ribbon-group">
+                        <div class="ribbon-buttons">
+                            <div class="ribbon-button-large" onclick="openTab('etat_ventes')">
+                                <span class="ribbon-icon-large">📈</span>
+                                <span class="ribbon-label">Etat des Ventes</span>
+                            </div>
+                            <div class="ribbon-button-large" onclick="openTab('journal_ventes')">
+                                <span class="ribbon-icon-large">📖</span>
+                                <span class="ribbon-label">Journal des ventes</span>
+                            </div>
+                        </div>
+                        <div class="ribbon-group-title">Rapports</div>
+                    </div>
+                    <div class="ribbon-group">
+                        <div class="ribbon-buttons">
+                            <div class="ribbon-button-large" onclick="openTab('mouv_clients')">
+                                <span class="ribbon-icon-large">👥</span>
+                                <span class="ribbon-label">Mouvement clients</span>
+                            </div>
+                            <div class="ribbon-button-large" onclick="openTab('gestion_clients')">
+                                <span class="ribbon-icon-large">👤</span>
+                                <span class="ribbon-label">Gestion Clients</span>
+                            </div>
+                            <div class="ribbon-button-large" onclick="openTab('recap_caisse')">
+                                <span class="ribbon-icon-large">💰</span>
+                                <span class="ribbon-label">Recap Caisse</span>
+                            </div>
+                        </div>
+                        <div class="ribbon-group-title">Clients & Caisse</div>
+                    </div>
+                </div>
+
+                <div class="ribbon-panel" id="panel-achats">
+                    <div class="ribbon-group">
+                        <div class="ribbon-buttons">
+                            <div class="ribbon-button-large" onclick="openTab('achat')">
+                                <span class="ribbon-icon-large">📦</span>
+                                <span class="ribbon-label">Nouvel Achat</span>
+                            </div>
+                        </div>
+                        <div class="ribbon-group-title">Saisie</div>
+                    </div>
+                    <div class="ribbon-group">
+                        <div class="ribbon-buttons">
+                            <div class="ribbon-button-large" onclick="openTab('hist_achats')">
+                                <span class="ribbon-icon-large">📜</span>
+                                <span class="ribbon-label">Historique achats</span>
+                            </div>
+                            <div class="ribbon-button-large" onclick="openTab('mouv_fourn')">
+                                <span class="ribbon-icon-large">🏭</span>
+                                <span class="ribbon-label">Mouvement Fourn.</span>
+                            </div>
+                        </div>
+                        <div class="ribbon-group-title">Suivi</div>
+                    </div>
+                    <div class="ribbon-group">
+                        <div class="ribbon-buttons">
+                            <div class="ribbon-button-large" onclick="openTab('gestion_fournisseurs')">
+                                <span class="ribbon-icon-large">&#128666;</span>
+                                <span class="ribbon-label">Gestion Fournisseurs</span>
+                            </div>
+                        </div>
+                        <div class="ribbon-group-title">Fournisseurs</div>
+                    </div>
+                </div>
+
+                <div class="ribbon-panel" id="panel-stocks">
+                    <div class="ribbon-group">
+                        <div class="ribbon-buttons">
+                            <div class="ribbon-button-large" onclick="openTab('articles')">
+                                <span class="ribbon-icon-large">📦</span>
+                                <span class="ribbon-label">Articles</span>
+                            </div>
+                            <div class="ribbon-button-large" onclick="openTab('inventaire')">
+                                <span class="ribbon-icon-large">📋</span>
+                                <span class="ribbon-label">Inventaire</span>
+                            </div>
+                        </div>
+                        <div class="ribbon-group-title">Gestion</div>
+                    </div>
+                    <div class="ribbon-group">
+                        <div class="ribbon-buttons">
+                            <div class="ribbon-button-large" onclick="openTab('hit_parade')">
+                                <span class="ribbon-icon-large">🏆</span>
+                                <span class="ribbon-label">Hit parade</span>
+                            </div>
+                            <div class="ribbon-button-large" onclick="openTab('mouv_articles')">
+                                <span class="ribbon-icon-large">🔄</span>
+                                <span class="ribbon-label">Mouvement Articles</span>
+                            </div>
+                        </div>
+                        <div class="ribbon-group-title">Statistiques</div>
+                    </div>
+                </div>
+
+                <div class="ribbon-panel" id="panel-mutuelles">
+                    <div class="ribbon-group">
+                        <div class="ribbon-buttons">
+                            <div class="ribbon-button-large" onclick="openTab('creer_mutuelle')">
+                                <span class="ribbon-icon-large">🏥</span>
+                                <span class="ribbon-label">Création mutuelles</span>
+                            </div>
+                            <div class="ribbon-button-large" onclick="openTab('releve_mutuelle')">
+                                <span class="ribbon-icon-large">🧾</span>
+                                <span class="ribbon-label">Relevé mutuelles</span>
+                            </div>
+                        </div>
+                        <div class="ribbon-group-title">Gestion</div>
+                    </div>
+                </div>
+
+                <div class="ribbon-panel" id="panel-ecommerce">
+                    <div class="ribbon-group">
+                        <div class="ribbon-buttons">
+                            <div class="ribbon-button-large" onclick="openTab('web_orders')">
+                                <span class="ribbon-icon-large">🌐</span>
+                                <span class="ribbon-label">Boutique en ligne</span>
+                            </div>
+                        </div>
+                        <div class="ribbon-group-title">Boutique</div>
+                    </div>
+                </div>
+
+                <div class="ribbon-panel" id="panel-config">
+                    <div class="ribbon-group">
+                        <div class="ribbon-buttons">
+                            <div class="ribbon-button-large" onclick="openTab('settings')">
+                                <span class="ribbon-icon-large">⚙️</span>
+                                <span class="ribbon-label">Paramètres</span>
+                            </div>
+                        </div>
+                        <div class="ribbon-group-title">Système</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-container">
+            <main class="content-area">
+                <div class="tabs-bar" id="tabs-bar"></div>
+                <div class="tab-content" id="tab-content">
+                    <div class="welcome-screen">
+                        <h2>Système de Gestion Centralisé</h2>
+                        <p>Sélectionnez un module dans le ruban en haut pour commencer.</p>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <footer class="status-bar">
+            <span>Prêt</span>
+            <span>Utilisateur: Admin</span>
+            <span id="clock">12:00:00</span>
+        </footer>
+    </div>
+
+    <script src="vendor/xlsx.full.min.js"></script>
+    <!-- CACHE LAYER - Doit être chargé AVANT app.js -->
+    <script src="supabase-cache-layer.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

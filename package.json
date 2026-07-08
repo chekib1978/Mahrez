@@ -1,0 +1,19 @@
+{
+  "name": "parapharmacie-app",
+  "version": "1.0.0",
+  "description": "Application de gestion commerciale et e-commerce",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "scrape:parashop": "node scripts/scrape-parashop-public.mjs",
+    "match:parashop": "node scripts/match-backoffice-parashop.mjs",
+    "prepare:plesk-test": "node scripts/prepare-plesk-test.mjs"
+  },
+  "devDependencies": {
+    "vite": "^5.2.0"
+  },
+  "dependencies": {
+    "xlsx": "^0.18.5"
+  }
+}
