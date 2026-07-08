@@ -13,17 +13,17 @@ const adminHtmlPath = path.join(rootDir, 'admin.html');
 const adminAppPath = path.join(rootDir, 'app.js');
 const adminStylesPath = path.join(rootDir, 'styles.css');
 const adminCachePath = path.join(rootDir, 'supabase-cache-layer.js');
+const adminRpcOptimizerPath = path.join(rootDir, 'admin-rpc-optimizer.js');
 const publicStaticCachePath = path.join(rootDir, 'public-supabase-static-cache.js');
 const staticDataDir = path.join(rootDir, 'static-data');
 const adminLogoPath = path.join(rootDir, 'logo.png');
 const xlsxVendorPath = path.join(rootDir, 'node_modules', 'xlsx', 'dist', 'xlsx.full.min.js');
 
-// Fichiers SQL à regrouper hors de httpdocs (ne JAMAIS les exposer sur le web).
-// Ils servent de référence pour initialiser/migrer Supabase côté hébergeur.
 const sqlSourceFiles = [
   'SUPABASE_SCHEMA_COMPLET.sql',
   'SUPABASE_SEED_CATEGORIES.sql',
-  'MIGRATION_INITIALISATION_SUPABASE.sql'
+  'MIGRATION_INITIALISATION_SUPABASE.sql',
+  'SUPABASE_ADMIN_RPC_OPTIMIZATIONS.sql'
 ];
 
 const rootHtaccess = `
@@ -50,12 +50,22 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule . /admin/index.html [L]
 `;
 
+function injectBeforeApp(content) {
+  const snippet = '<script src="./admin-rpc-optimizer.js"></script>';
+  let html = String(content);
+  if (html.includes('admin-rpc-optimizer.js')) return html;
+  if (html.includes('src="./app.js"')) return html.replace('<script src="./app.js"></script>', `${snippet}\n<script src="./app.js"></script>`);
+  if (html.includes('src="app.js"')) return html.replace('<script src="app.js"></script>', `${snippet}\n<script src="app.js"></script>`);
+  if (html.includes('</body>')) return html.replace('</body>', `${snippet}\n</body>`);
+  return `${html}\n${snippet}`;
+}
+
 function normalizeAdminHtml(content) {
-  return String(content)
+  return injectBeforeApp(String(content)
     .replace(/href="styles\.css"/g, 'href="./styles.css"')
     .replace(/src="app\.js"/g, 'src="./app.js"')
     .replace(/src="supabase-cache-layer\.js"/g, 'src="./supabase-cache-layer.js"')
-    .replace(/src="\/node_modules\/xlsx\/dist\/xlsx\.full\.min\.js"/g, 'src="./vendor/xlsx.full.min.js"');
+    .replace(/src="\/node_modules\/xlsx\/dist\/xlsx\.full\.min\.js"/g, 'src="./vendor/xlsx.full.min.js"'));
 }
 
 function injectPublicStaticCache(content) {
@@ -68,27 +78,17 @@ function injectPublicStaticCache(content) {
 }
 
 async function safeExists(target) {
-  try {
-    await fs.access(target);
-    return true;
-  } catch {
-    return false;
-  }
+  try { await fs.access(target); return true; } catch { return false; }
 }
 
 async function copyDirContents(sourceDir, destinationDir) {
   await fs.mkdir(destinationDir, { recursive: true });
   const entries = await fs.readdir(sourceDir, { withFileTypes: true });
-
   for (const entry of entries) {
     const sourcePath = path.join(sourceDir, entry.name);
     const destinationPath = path.join(destinationDir, entry.name);
-
-    if (entry.isDirectory()) {
-      await fs.cp(sourcePath, destinationPath, { recursive: true, force: true });
-    } else {
-      await fs.copyFile(sourcePath, destinationPath);
-    }
+    if (entry.isDirectory()) await fs.cp(sourcePath, destinationPath, { recursive: true, force: true });
+    else await fs.copyFile(sourcePath, destinationPath);
   }
 }
 
@@ -107,52 +107,38 @@ async function injectIntoBuiltHtmlFiles(dir) {
 }
 
 async function main() {
-  if (!(await safeExists(shopDistDir))) {
-    throw new Error('Le dossier mv-para-sparkle-main/dist est introuvable. Lancez d abord le build du site web.');
+  if (!(await safeExists(shopDistDir))) throw new Error('Le dossier mv-para-sparkle-main/dist est introuvable. Lancez d abord le build du site web.');
+
+  for (const requiredFile of [adminHtmlPath, adminAppPath, adminStylesPath, adminCachePath, adminRpcOptimizerPath, publicStaticCachePath, adminLogoPath, xlsxVendorPath]) {
+    if (!(await safeExists(requiredFile))) throw new Error(`Fichier introuvable: ${requiredFile}`);
   }
 
-  for (const requiredFile of [adminHtmlPath, adminAppPath, adminStylesPath, adminCachePath, publicStaticCachePath, adminLogoPath, xlsxVendorPath]) {
-    if (!(await safeExists(requiredFile))) {
-      throw new Error(`Fichier introuvable: ${requiredFile}`);
-    }
-  }
-
-  // Nettoyage complet du dossier de déploiement pour repartir d'un état propre
-  // (évite le nesting parasite assets/assets/ et les restes de versions précédentes).
   await fs.rm(outputDir, { recursive: true, force: true });
   await fs.mkdir(adminVendorDir, { recursive: true });
   await fs.mkdir(sqlDir, { recursive: true });
 
-  // --- Boutique : contenu du build React ---
   await copyDirContents(shopDistDir, httpdocsDir);
   await injectIntoBuiltHtmlFiles(httpdocsDir);
   await fs.copyFile(publicStaticCachePath, path.join(httpdocsDir, 'public-supabase-static-cache.js'));
 
-  if (await safeExists(staticDataDir)) {
-    await fs.cp(staticDataDir, path.join(httpdocsDir, 'static-data'), { recursive: true, force: true });
-  } else {
-    console.warn('ATTENTION: static-data/ absent. Lancez npm run build:static-data pour supprimer l egress public produits/categories.');
-  }
+  if (await safeExists(staticDataDir)) await fs.cp(staticDataDir, path.join(httpdocsDir, 'static-data'), { recursive: true, force: true });
+  else console.warn('ATTENTION: static-data/ absent. Lancez npm run build:static-data pour supprimer l egress public produits/categories.');
 
-  // --- Admin : HTML normalisé + assets ---
   const adminHtml = await fs.readFile(adminHtmlPath, 'utf8');
   await fs.writeFile(path.join(adminDir, 'index.html'), normalizeAdminHtml(adminHtml), 'utf8');
   await fs.copyFile(adminAppPath, path.join(adminDir, 'app.js'));
   await fs.copyFile(adminStylesPath, path.join(adminDir, 'styles.css'));
   await fs.copyFile(adminCachePath, path.join(adminDir, 'supabase-cache-layer.js'));
+  await fs.copyFile(adminRpcOptimizerPath, path.join(adminDir, 'admin-rpc-optimizer.js'));
   await fs.copyFile(adminLogoPath, path.join(adminDir, 'logo.png'));
   await fs.copyFile(xlsxVendorPath, path.join(adminVendorDir, 'xlsx.full.min.js'));
 
-  // --- .htaccess (SPA routing pour boutique + admin) ---
   await fs.writeFile(path.join(httpdocsDir, '.htaccess'), rootHtaccess, 'utf8');
   await fs.writeFile(path.join(adminDir, '.htaccess'), adminHtaccess, 'utf8');
 
-  // --- SQL de référence (HORS httpdocs : jamais servi sur le web) ---
   for (const sqlFile of sqlSourceFiles) {
     const src = path.join(rootDir, sqlFile);
-    if (await safeExists(src)) {
-      await fs.copyFile(src, path.join(sqlDir, sqlFile));
-    }
+    if (await safeExists(src)) await fs.copyFile(src, path.join(sqlDir, sqlFile));
   }
 
   const readme = [
@@ -160,28 +146,18 @@ async function main() {
     '',
     'Envoyer le contenu du dossier httpdocs/ vers la racine web du domaine/sous-domaine cible.',
     '',
-    'URLs attendues :',
-    '- https:// / -> boutique (React SPA)',
-    '- https:// /admin/ -> backoffice (admin.html)',
-    '',
     'Optimisation egress Supabase :',
-    '- public-supabase-static-cache.js est inclus dans la boutique publique',
-    '- static-data/products.json et static-data/web_categories.json doivent être présents',
-    '- générer ces fichiers avec npm run build:static-data avant le packaging Plesk',
-    '- l admin reste en temps réel avec supabase-cache-layer.js',
+    '- Boutique : public-supabase-static-cache.js + static-data/products.json + static-data/web_categories.json',
+    '- Admin : supabase-cache-layer.js + admin-rpc-optimizer.js',
+    '- SQL admin RPC : executer sql/SUPABASE_ADMIN_RPC_OPTIMIZATIONS.sql dans Supabase avant test admin',
     '',
-    'Structure :',
-    '- httpdocs/ = boutique (build React de mv-para-sparkle-main)',
-    '- httpdocs/static-data/ = JSON publics produits/catégories sans egress Supabase navigateur',
-    '- httpdocs/admin/ = backoffice (index.html + app.js + styles.css + supabase-cache-layer.js + logo.png + vendor/xlsx.full.min.js)',
-    '- httpdocs/.htaccess = rewrite SPA racine + cache navigateur JSON/JS',
-    '- httpdocs/admin/.htaccess = rewrite SPA admin',
-    '- sql/ = scripts SQL de reference (NE PAS uploader dans httpdocs)',
+    'URLs attendues :',
+    '- https:// / -> boutique',
+    '- https:// /admin/ -> backoffice',
     '',
     'Important :',
-    '- la boutique et le backoffice pointent sur la meme base Supabase',
     '- les fichiers SQL sont hors httpdocs : ils ne doivent pas etre servis par le web',
-    '- les .htaccess sont prets pour Plesk/Apache (mod_rewrite)'
+    '- l admin reste temps reel mais avec des RPC slim + cache court'
   ].join('\n');
 
   await fs.writeFile(path.join(outputDir, 'README.txt'), readme, 'utf8');
