@@ -15,8 +15,9 @@
     "install:admin-enter": "node scripts/install-admin-enter-navigation-snippet.mjs",
     "uninstall:admin-enter": "node scripts/uninstall-admin-enter-navigation-snippet.mjs",
     "uninstall:admin-ui-optimizers": "node scripts/uninstall-admin-ui-optimizers.mjs",
+    "install:admin-sales-dates": "node scripts/install-admin-sales-date-defaults-snippet.mjs",
     "audit:egress": "node scripts/audit-supabase-egress.mjs",
-    "optimize:egress": "npm run build:static-data && npm run install:static-cache && npm run install:admin-rpc && npm run uninstall:admin-enter && npm run audit:egress"
+    "optimize:egress": "npm run build:static-data && npm run install:static-cache && npm run install:admin-rpc && npm run uninstall:admin-enter && npm run install:admin-sales-dates && npm run audit:egress"
   },
   "devDependencies": {
     "vite": "^5.2.0"
