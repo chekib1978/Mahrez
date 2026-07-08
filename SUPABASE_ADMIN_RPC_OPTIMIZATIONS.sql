@@ -204,6 +204,8 @@ as $$
   );
 $$;
 
+\i SUPABASE_MISSING_RPC_PRODUCTS_ADMIN_BUNDLE.sql
+
 grant execute on function public.get_admin_products_light(text, integer, integer) to anon, authenticated;
 grant execute on function public.get_admin_customers_light(text, integer, integer) to anon, authenticated;
 grant execute on function public.get_admin_fridge_sales_recent(integer) to anon, authenticated;
